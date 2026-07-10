@@ -1,31 +1,45 @@
 """
-Klasa Order - reprezentuje zamówienie (KOMPOZYCJA - zawiera Products)
+Klasa Order - reprezentuje zamówienie (KOMPOZYCJA)
+Poziom: Klasa 2 LO rozszerzona
 """
 
 from datetime import datetime
+from typing import List, Dict, Any
 
 class Order:
-    """Klasa reprezentująca zamówienie"""
+    """
+    Klasa reprezentująca zamówienie.
+    KOMPOZYCJA: Zamówienie zawiera wiele produktów.
+    """
     
-    def __init__(self, order_id, seller_name, customer_name):
+    def __init__(self, order_id: int, seller_name: str, customer_name: str) -> None:
         """
         Inicjalizacja zamówienia
         
         Args:
-            order_id: Unikalny ID zamówienia
-            seller_name: Imię sprzedawcy
-            customer_name: Imię klienta
+            order_id (int): Unikalny ID zamówienia
+            seller_name (str): Imię sprzedawcy
+            customer_name (str): Imię klienta
         """
         self.order_id = order_id
         self.seller_name = seller_name
         self.customer_name = customer_name
-        self.items = []  # KOMPOZYCJA - lista produktów w zamówieniu
+        self.items: List[Dict[str, Any]] = []  # KOMPOZYCJA - lista produktów
         self.order_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.total_value = 0.0
         self.status = "pending"  # pending, completed, cancelled
     
-    def add_product(self, product, quantity):
-        """Dodaje produkt do zamówienia (KOMPOZYCJA)"""
+    def add_product(self, product, quantity: int) -> bool:
+        """
+        Dodaje produkt do zamówienia (KOMPOZYCJA)
+        
+        Args:
+            product: Obiekt Product
+            quantity (int): Ilość
+            
+        Returns:
+            bool: Czy operacja się powiodła
+        """
         if quantity <= 0:
             print("❌ Ilość musi być większa od 0!")
             return False
@@ -43,23 +57,33 @@ class Order:
         print(f"✅ Dodano {quantity}x {product.name} do zamówienia")
         return True
     
-    def complete_order(self):
+    def complete_order(self) -> None:
         """Zmienia status na ukończone"""
         self.status = "completed"
         print(f"✅ Zamówienie {self.order_id} ukończone!")
     
-    def cancel_order(self):
+    def cancel_order(self) -> None:
         """Anuluje zamówienie"""
         self.status = "cancelled"
         self.total_value = 0
         print(f"❌ Zamówienie {self.order_id} anulowane!")
     
-    def get_summary(self):
-        """Zwraca podsumowanie zamówienia"""
+    def get_summary(self) -> str:
+        """
+        Zwraca podsumowanie zamówienia
+        
+        Returns:
+            str: Sformatowany tekst
+        """
         return f"Zamówienie #{self.order_id}: {self.customer_name} - {self.total_value:.2f} zł ({self.status})"
     
-    def to_dict(self):
-        """Konwertuje na słownik"""
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Konwertuje zamówienie na słownik (do JSON)
+        
+        Returns:
+            Dict: Słownik z danymi zamówienia
+        """
         return {
             "order_id": self.order_id,
             "seller_name": self.seller_name,
@@ -71,8 +95,16 @@ class Order:
         }
     
     @staticmethod
-    def from_dict(data):
-        """Konwertuje ze słownika"""
+    def from_dict(data: Dict[str, Any]) -> 'Order':
+        """
+        Konwertuje słownik na zamówienie (z JSON)
+        
+        Args:
+            data (Dict): Słownik z danymi
+            
+        Returns:
+            Order: Nowy obiekt Order
+        """
         order = Order(data["order_id"], data["seller_name"], data["customer_name"])
         order.items = data.get("items", [])
         order.order_date = data.get("order_date", "")
